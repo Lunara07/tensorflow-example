@@ -24,11 +24,7 @@ def main():
         image='tensorflow/tensorflow:2.6.0',
         default_inputs={
             'dataset': 'http://www.testifytech.ml/Traffic_train.csv',
-        },
-        default_parameters={
-            'learning_rate': 0.001,
-            'epochs': 5,
-        },
+        }
     )
 
     # Read input files from Valohai inputs directory
