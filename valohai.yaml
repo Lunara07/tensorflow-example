@@ -10,7 +10,6 @@
       - name: dataset
         default: http://www.testifytech.ml/Traffic_train.csv
 
-
 - pipeline:
     name: Training Pipeline
     nodes:
@@ -23,12 +22,6 @@
     edges:
       - [train.input.dataset]
       - [train.output.model*]
-
-- endpoint:
-    name: greet
-    image: python:3.9
-    port: 8000
-    server-command: python -m wsgiref.simple_server
 
 - endpoint:
     name: predict-anomaly
