@@ -19,9 +19,13 @@
         override:
           inputs:
             - name: dataset
+      - name: deploy
+        type: deployment
+        deployment: deployment-test
+        endpoints:
+          - predict-anomaly
     edges:
-      - [train.input.dataset]
-      - [train.output.model*]
+      - [train.output.model*, deploy.file.predict-anomaly.model]
 
 - endpoint:
     name: predict-anomaly
