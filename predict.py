@@ -55,7 +55,7 @@ def predict(environ, start_response):
     test_mae_loss = np.mean(np.abs(X_test_pred - X_test), axis=1)
     THRESHOLD = 0.65
 
-    test_score_df = pd.DataFrame()
+    test_score_df = pd.DataFrame(index=test[TIME_STEPS:].Time)
     test_score_df['loss'] = test_mae_loss
     test_score_df['threshold'] = THRESHOLD
     test_score_df['anomaly'] = test_score_df.loss > test_score_df.threshold
