@@ -31,7 +31,7 @@ def main():
         step='train-model',
         image='tensorflow/tensorflow:2.6.0',
         default_inputs={
-            'dataset': 'https://drive.google.com/file/d/1grwqu7MHB5CpiV9LmS9U8T53RQmV5Yqf/view?usp=sharing',
+            'dataset': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQD8yYdzF3wGm3E0prjgaTfV6YXHfhs2r1N6xSG9K9Z-uW0bFUahG_dI2XjmAAFDND2OYpaM4ZGZrxP/pub?gid=1714101272&single=true&output=csv',
         }
     )
 
