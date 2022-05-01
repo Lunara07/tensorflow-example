@@ -43,7 +43,7 @@ def main():
     # This enables Valohai to version your training data
     # and cache the data for quick experimentation
     #print(valohai.inputs('dataset'))
-    df = pd.read_csv(valohai.inputs('dataset').path(), parse_dates=['Time'], index_col='Time')
+    df = pd.read_csv(valohai.inputs('dataset').path())
     train_size = int(len(df) * 0.95)
     test_size = len(df) - train_size
     train, test = df.iloc[0:train_size], df.iloc[train_size:len(df)]
