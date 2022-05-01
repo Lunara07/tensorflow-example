@@ -11,6 +11,13 @@ from sklearn.neighbors import LocalOutlierFactor
 from tensorflow import keras
 from sklearn.preprocessing import StandardScaler
 
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import StratifiedKFold
+from sklearn.neighbors import KNeighborsClassifier
+from imblearn.over_sampling import SMOTE
+
+
 # def log_metadata(epoch, logs):
 #     """Helper function to log training metrics"""
 #     with valohai.logger() as logger:
@@ -31,48 +38,30 @@ def main():
         step='train-model',
         image='tensorflow/tensorflow:2.6.0',
         default_inputs={
-            'dataset': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQD8yYdzF3wGm3E0prjgaTfV6YXHfhs2r1N6xSG9K9Z-uW0bFUahG_dI2XjmAAFDND2OYpaM4ZGZrxP/pub?gid=1714101272&single=true&output=csv',
+            'dataset': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSEhmFQ0wZgYM7Q_aETO8dPwA0eqShcQ2v5ps8oBZJYzgUR7fg1pS5hX8RdVPsb3u7tHmwTahl-nYdG/pub?gid=733135457&single=true&output=csv',
         }
     )
 
-    RANDOM_SEED = 42
-
-    np.random.seed(RANDOM_SEED)
-    tf.random.set_seed(RANDOM_SEED)
+    
     # Read input files from Valohai inputs directory
     # This enables Valohai to version your training data
     # and cache the data for quick experimentation
     #print(valohai.inputs('dataset'))
-    df = pd.read_csv(valohai.inputs('dataset').path())
-    train_size = int(len(df) * 0.95)
-    test_size = len(df) - train_size
-    train, test = df.iloc[0:train_size], df.iloc[train_size:len(df)]
+    train = pd.read_csv(valohai.inputs('dataset').path())
+
+
+    one_hot_encoded_train = pd.get_dummies(train, columns = ['Code'])
+    one_hot_encoded_train = pd.get_dummies(one_hot_encoded_train, columns = ['Method'])
     
+    train = one_hot_encoded_train.drop('Time', 1)
+    y_train=train[["Y"]]
+    X_train=train.drop("Y", 1)
+    y_train.loc[y_train["Y"] == -1, "Y"] = 0
+    smote = SMOTE(random_state=0,  k_neighbors=2)
+    X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
+    model = KNeighborsClassifier( weights='distance')
 
-    scaler = StandardScaler()
-    scaler = scaler.fit(train[['Delay']])
-
-    train['Delay'] = scaler.transform(train[['Delay']])
-    test['Delay'] = scaler.transform(test[['Delay']])
-    TIME_STEPS = 30
-
-    # reshape to [samples, time_steps, n_features]
-
-    X_train, y_train = create_dataset(train[['Delay']], train.Delay, TIME_STEPS)
-    X_test, y_test = create_dataset(test[['Delay']], test.Delay, TIME_STEPS)
-
-    model = keras.Sequential()
-    model.add(keras.layers.LSTM(units=64, input_shape=(X_train.shape[1], X_train.shape[2])))
-    model.add(keras.layers.Dropout(rate=0.2))
-    model.add(keras.layers.RepeatVector(n=X_train.shape[1]))
-    model.add(keras.layers.LSTM(units=64, return_sequences=True))
-    model.add(keras.layers.Dropout(rate=0.2))
-    model.add(keras.layers.TimeDistributed(keras.layers.Dense(units=X_train.shape[2])))
-    model.compile(loss='mae', optimizer='adam')
-
-    model.fit(X_train, y_train,epochs=10,batch_size=32,validation_split=0.1,shuffle=False)
-
-
+    model.fit(X_train, y_train['Y'])
 
 
     #input_path = valohai.inputs('dataset').path()
@@ -113,9 +102,9 @@ def main():
 
     suffix = uuid.uuid4()
     output_path = valohai.outputs().path(f'model-{suffix}.h5')
-    model.save(output_path)
-    #with open(output_path, 'wb') as f:
-     #   pickle.dump(model, f)
+    #model.save(output_path)
+    with open(output_path, 'wb') as f:
+        pickle.dump(model, f)
     #model.save(output_path)
 
 

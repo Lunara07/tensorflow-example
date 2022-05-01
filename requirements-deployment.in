@@ -1,4 +1,5 @@
 pillow
 pandas
 numpy
+imblearn
 sklearn

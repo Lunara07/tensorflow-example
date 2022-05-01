@@ -40,6 +40,8 @@ h5py==3.1.0
     # via tensorflow
 idna==3.2
     # via requests
+imblearn==0.0
+    # via requests
 jsonschema==3.2.0
     # via valohai-yaml
 keras==2.6.0
