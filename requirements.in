@@ -3,7 +3,7 @@ pandas
 sklearn
 pillow
 pickle
-imblearn
+imbalanced-learn
 tensorflow==2.6.0
 valohai-utils
 
