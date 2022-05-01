@@ -1,6 +1,4 @@
 pillow
 pandas
 numpy
-imbalanced-learn
 sklearn
-scikit-learn
