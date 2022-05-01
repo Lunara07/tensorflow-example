@@ -4,7 +4,6 @@ sklearn
 pillow
 pickle
 imblearn
-scikit-learn==1.0.1
 tensorflow==2.6.0
 valohai-utils
 
