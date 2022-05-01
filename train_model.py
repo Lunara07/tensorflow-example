@@ -113,8 +113,9 @@ def main():
 
     suffix = uuid.uuid4()
     output_path = valohai.outputs().path(f'model-{suffix}.h5')
-    with open(output_path, 'wb') as f:
-        pickle.dump(model, f)
+    model.save(output_path)
+    #with open(output_path, 'wb') as f:
+     #   pickle.dump(model, f)
     #model.save(output_path)
 
 
