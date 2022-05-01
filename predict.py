@@ -48,8 +48,7 @@ def predict(environ, start_response):
     # between processes.
     global model
     if not model:
-        with open('model.h5', 'rb') as f:
-            model = pickle.load(f)
+        model = load_model('model.h5')
 
     X_test_pred = model.predict(X_test)
 
