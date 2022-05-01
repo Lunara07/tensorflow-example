@@ -15,7 +15,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import StratifiedKFold
 from sklearn.neighbors import KNeighborsClassifier
-from imblearn.over_sampling import SMOTE
+#from imblearn.over_sampling import RandomOverSampler
 
 
 # def log_metadata(epoch, logs):
@@ -51,8 +51,8 @@ def main():
     y_train=train[["Y"]]
     X_train=train.drop("Y", 1)
     y_train.loc[y_train["Y"] == -1, "Y"] = 0
-    smote = SMOTE(random_state=0,  k_neighbors=2)
-    X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
+    #ros = RandomOverSampler(random_state=0)
+    #X_train_resampled, y_train_resampled = ros.fit_resample(X_train, y_train)
     model = KNeighborsClassifier( weights='distance')
 
     model.fit(X_train, y_train['Y'])
