@@ -10,11 +10,9 @@ import pickle
 from tensorflow import keras
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import StratifiedKFold
 from sklearn.neighbors import KNeighborsClassifier
-from imblearn.over_sampling import RandomOverSampler
+
 model = None
 
 
