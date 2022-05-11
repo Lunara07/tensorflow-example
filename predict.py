@@ -10,6 +10,11 @@ import pickle
 from tensorflow import keras
 import numpy as np
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import StratifiedKFold
+from sklearn.neighbors import KNeighborsClassifier
+from imblearn.over_sampling import RandomOverSampler
 model = None
 
 
@@ -22,6 +27,23 @@ def predict(environ, start_response):
         return Response('no file uploaded', 400)(environ, start_response)
     csv_file = next(request.files.values())
     test = pd.read_csv(csv_file)
+    
+    train = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vSEhmFQ0wZgYM7Q_aETO8dPwA0eqShcQ2v5ps8oBZJYzgUR7fg1pS5hX8RdVPsb3u7tHmwTahl-nYdG/pub?gid=733135457&single=true&output=csv')
+
+
+    one_hot_encoded_train = pd.get_dummies(train, columns = ['Code'])
+    one_hot_encoded_train = pd.get_dummies(one_hot_encoded_train, columns = ['Method'])
+    
+    train = one_hot_encoded_train.drop('Time', 1)
+    y_train=train[["Y"]]
+    X_train=train.drop("Y", 1)
+    y_train.loc[y_train["Y"] == -1, "Y"] = 0
+    ros = RandomOverSampler(random_state=0)
+    X_train_resampled, y_train_resampled = ros.fit_resample(X_train, y_train)
+    model = KNeighborsClassifier( weights='distance')
+
+    model.fit(X_train_resampled, y_train_resampled['Y'])
+    
     one_hot_encoded_test = pd.get_dummies(test, columns = ['Code'])
     one_hot_encoded_test = pd.get_dummies(one_hot_encoded_test, columns = ['Method'])
     test = one_hot_encoded_test.drop('Time', 1)
@@ -35,11 +57,11 @@ def predict(environ, start_response):
     # The predictor must be lazily instantiated;
     # the TensorFlow graph can apparently not be shared
     # between processes.
-    global model
-    if not model:
+    #global model
+    #if not model:
         #model = load_model('model.h5')
-        with open('model.h5', 'rb') as f:
-            model = pickle.load(f)
+     #   with open('model.h5', 'rb') as f:
+      #      model = pickle.load(f)
 
     pred = model.predict(X_test)
 
