@@ -10,7 +10,6 @@ import pickle
 from tensorflow import keras
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from sklearn.neighbors import LocalOutlierFactor
 
 model = None
 
