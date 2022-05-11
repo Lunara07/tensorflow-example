@@ -25,10 +25,15 @@ def predict(environ, start_response):
     # The predictor must be lazily instantiated;
     # the TensorFlow graph can apparently not be shared
     # between processes.
-    global model
-    if not model:
-        with open('model.h5', 'rb') as f:
-            model = pickle.load(f)
+    #global model
+    #if not model:
+    #    with open('model.h5', 'rb') as f:
+    #        model = pickle.load(f)
+    data = pd.read_csv('http://www.testifytech.ml/Traffic_train.csv'.path())
+    one_hot_encoded_data = pd.get_dummies(data, columns = ['Code'])
+    df = one_hot_encoded_data[["Delay", "Code_200", "Code_201", "Code_204", "Code_302", "Code_400", "Code_404", "Code_500"]]
+    model = LocalOutlierFactor(n_neighbors=20, novelty=True, contamination=0.1)
+    model.fit(df)
     pred = model.predict(df2)
     #pred = pred.where(pred==-1)
     #prediction = predict_image(model, image, inverted)
