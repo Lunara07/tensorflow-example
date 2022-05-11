@@ -10,6 +10,8 @@ import pickle
 from tensorflow import keras
 import numpy as np
 from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import LocalOutlierFactor
+
 model = None
 
 def create_dataset(X, y, time_steps=1):
@@ -33,22 +35,34 @@ def predict(environ, start_response):
     train, test = df.iloc[0:train_size], df.iloc[train_size:len(df)]
     scaler = StandardScaler()
     scaler = scaler.fit(train[['Delay']])
+    train['Delay'] = scaler.transform(train[['Delay']])
+    test['Delay'] = scaler.transform(test[['Delay']])
     TIME_STEPS = 30
 
     # reshape to [samples, time_steps, n_features]
-    
+
+    X_train, y_train = create_dataset(train[['Delay']], train.Delay, TIME_STEPS)
     X_test, y_test = create_dataset(test[['Delay']], test.Delay, TIME_STEPS)
 
-    
+    model = keras.Sequential()
+    model.add(keras.layers.LSTM(units=64, input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(keras.layers.Dropout(rate=0.2))
+    model.add(keras.layers.RepeatVector(n=X_train.shape[1]))
+    model.add(keras.layers.LSTM(units=64, return_sequences=True))
+    model.add(keras.layers.Dropout(rate=0.2))
+    model.add(keras.layers.TimeDistributed(keras.layers.Dense(units=X_train.shape[2])))
+    model.compile(loss='mae', optimizer='adam')
+
+    model.fit(X_train, y_train,epochs=10,batch_size=32,validation_split=0.1,shuffle=False)
 
     
 
     # The predictor must be lazily instantiated;
     # the TensorFlow graph can apparently not be shared
     # between processes.
-    global model
-    if not model:
-        model = load_model('model.h5')
+    #global model
+    #if not model:
+     #   model = load_model('model.h5')
 
     X_test_pred = model.predict(X_test)
 
