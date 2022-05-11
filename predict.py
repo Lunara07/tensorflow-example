@@ -38,11 +38,11 @@ def predict(environ, start_response):
     y_train=train[["Y"]]
     X_train=train.drop("Y", 1)
     y_train.loc[y_train["Y"] == -1, "Y"] = 0
-    ros = RandomOverSampler(random_state=0)
-    X_train_resampled, y_train_resampled = ros.fit_resample(X_train, y_train)
+    #ros = RandomOverSampler(random_state=0)
+    #X_train_resampled, y_train_resampled = ros.fit_resample(X_train, y_train)
     model = KNeighborsClassifier( weights='distance')
 
-    model.fit(X_train_resampled, y_train_resampled['Y'])
+    model.fit(X_train, y_train['Y'])
     
     one_hot_encoded_test = pd.get_dummies(test, columns = ['Code'])
     one_hot_encoded_test = pd.get_dummies(one_hot_encoded_test, columns = ['Method'])
