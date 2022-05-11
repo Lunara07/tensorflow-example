@@ -7,6 +7,7 @@ import pandas as pd
 from utils.image import predict_image, process_image
 from utils.model import load_model
 import pickle
+from sklearn.neighbors import LocalOutlierFactor
 model = None
 
 
