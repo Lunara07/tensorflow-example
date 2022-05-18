@@ -27,38 +27,50 @@ def predict(environ, start_response):
     print(request)
     if not request.files:
         return Response('no file uploaded', 400)(environ, start_response)
-    train = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vQD8yYdzF3wGm3E0prjgaTfV6YXHfhs2r1N6xSG9K9Z-uW0bFUahG_dI2XjmAAFDND2OYpaM4ZGZrxP/pub?gid=1714101272&single=true&output=csv')
+    test_csv = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vQD8yYdzF3wGm3E0prjgaTfV6YXHfhs2r1N6xSG9K9Z-uW0bFUahG_dI2XjmAAFDND2OYpaM4ZGZrxP/pub?gid=1714101272&single=true&output=csv')
     csv_file = next(request.files.values())
-    test = pd.read_csv(csv_file)
-    train_size = int(len(train) * 0.95)
-    train= train.iloc[0:train_size]
+    df = pd.read_csv(csv_file)
+    train_size = int(len(df) * 0.95)
+    test_size = len(df) - train_size
+    train, test = df.iloc[0:train_size], df.iloc[train_size:len(df)]
     scaler = StandardScaler()
     scaler = scaler.fit(train[['Delay']])
+    train['Delay'] = scaler.transform(train[['Delay']])
     test['Delay'] = scaler.transform(test[['Delay']])
+    test_csv['Delay'] = scaler.transform(test_csv[['Delay']])
     TIME_STEPS = 30
 
     # reshape to [samples, time_steps, n_features]
 
-    
+    X_train, y_train = create_dataset(train[['Delay']], train.Delay, TIME_STEPS)
     X_test, y_test = create_dataset(test[['Delay']], test.Delay, TIME_STEPS)
-    
+    X_test_csv, y_test_csv = create_dataset(test_csv[['Delay']], test_csv.Delay, TIME_STEPS)
+    model = keras.Sequential()
+    model.add(keras.layers.LSTM(units=64, input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(keras.layers.Dropout(rate=0.2))
+    model.add(keras.layers.RepeatVector(n=X_train.shape[1]))
+    model.add(keras.layers.LSTM(units=64, return_sequences=True))
+    model.add(keras.layers.Dropout(rate=0.2))
+    model.add(keras.layers.TimeDistributed(keras.layers.Dense(units=X_train.shape[2])))
+    model.compile(loss='mae', optimizer='adam')
 
-    
+    model.fit(X_train, y_train,epochs=10,batch_size=32,validation_split=0.1,shuffle=False)
+
     
 
     # The predictor must be lazily instantiated;
     # the TensorFlow graph can apparently not be shared
     # between processes.
-    global model
-    if not model:
-        model = load_model('model.h5')
+    #global model
+    #if not model:
+     #   model = load_model('model.h5')
 
-    X_test_pred = model.predict(X_test)
-    
-    test_mae_loss = np.mean(np.abs(X_test_pred - X_test), axis=1)
+    #X_test_pred = model.predict(X_test)
+    X_test_pred = model.predict(X_test_csv)
+    test_mae_loss = np.mean(np.abs(X_test_pred - X_test_csv), axis=1)
     THRESHOLD = 0.65
 
-    test_score_df = pd.DataFrame(index=test[TIME_STEPS:].Time)
+    test_score_df = pd.DataFrame(index=test_csv[TIME_STEPS:].Time)
     test_score_df['loss'] = test_mae_loss
     test_score_df['threshold'] = THRESHOLD
     test_score_df['anomaly'] = test_score_df.loss > test_score_df.threshold
