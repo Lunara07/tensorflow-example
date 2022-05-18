@@ -79,7 +79,7 @@ def predict(environ, start_response):
     #pred = pred.where(pred==-1)
     #prediction = predict_image(model, image, inverted)
     #prediction = {'anomalies': where(pred == -1)}
-    prediction = anomalies['anomaly'].tolist()
+    prediction = test_score_df['anomaly'].tolist()
     # The following line allows Valohai to track endpoint predictions
     # while the model is deployed. Here we remove the full predictions
     # details as we are only interested in tracking the rest of the results.
