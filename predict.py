@@ -40,6 +40,7 @@ def predict(environ, start_response):
     #prediction = predict_image(model, image, inverted)
     #prediction = {'anomalies': where(pred == -1)}
     prediction = pred.tolist()
+    prediction = list(map(lambda x: x.replace(-1, 0), prediction))
     # The following line allows Valohai to track endpoint predictions
     # while the model is deployed. Here we remove the full predictions
     # details as we are only interested in tracking the rest of the results.
