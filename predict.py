@@ -85,6 +85,9 @@ def predict(environ, start_response):
     integer_map = map(int, prediction)
 
     integer_prediction = list(integer_map)
+    integer_prediction = [-1 if x==1 else x for x in integer_prediction]
+    integer_prediction = [1 if x==0 else x for x in integer_prediction]
+    integer_prediction = [0 if x==-1 else x for x in integer_prediction]
     # The following line allows Valohai to track endpoint predictions
     # while the model is deployed. Here we remove the full predictions
     # details as we are only interested in tracking the rest of the results.
