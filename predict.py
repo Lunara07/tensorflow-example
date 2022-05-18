@@ -80,13 +80,16 @@ def predict(environ, start_response):
     #prediction = predict_image(model, image, inverted)
     #prediction = {'anomalies': where(pred == -1)}
     prediction = test_score_df['anomaly'].tolist()
+    integer_map = map(int, prediction)
+
+    integer_prediction = list(integer_map)
     # The following line allows Valohai to track endpoint predictions
     # while the model is deployed. Here we remove the full predictions
     # details as we are only interested in tracking the rest of the results.
     #print(json.dumps({'vh_metadata': {k: v for k, v in prediction.items() if k != 'predictions'}}))
 
     # Return a JSON response
-    response = Response(json.dumps(prediction), content_type='application/json')
+    response = Response(json.dumps(integer_prediction), content_type='application/json')
     return response(environ, start_response)
 
 
