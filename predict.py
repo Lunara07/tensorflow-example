@@ -27,9 +27,9 @@ def predict(environ, start_response):
     print(request)
     if not request.files:
         return Response('no file uploaded', 400)(environ, start_response)
-    test_csv = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vQD8yYdzF3wGm3E0prjgaTfV6YXHfhs2r1N6xSG9K9Z-uW0bFUahG_dI2XjmAAFDND2OYpaM4ZGZrxP/pub?gid=1714101272&single=true&output=csv')
+    df = pd.read_csv('https://docs.google.com/spreadsheets/d/e/2PACX-1vQD8yYdzF3wGm3E0prjgaTfV6YXHfhs2r1N6xSG9K9Z-uW0bFUahG_dI2XjmAAFDND2OYpaM4ZGZrxP/pub?gid=1714101272&single=true&output=csv')
     csv_file = next(request.files.values())
-    df = pd.read_csv(csv_file)
+    test_csv = pd.read_csv(csv_file)
     train_size = int(len(df) * 0.95)
     test_size = len(df) - train_size
     train, test = df.iloc[0:train_size], df.iloc[train_size:len(df)]
