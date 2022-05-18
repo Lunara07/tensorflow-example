@@ -66,7 +66,7 @@ def predict(environ, start_response):
      #   model = load_model('model.h5')
 
     #X_test_pred = model.predict(X_test)
-    X_test_pred = model.predict(X_test)
+    X_test_pred = model.predict(X_test_csv)
     test_mae_loss = np.mean(np.abs(X_test_pred - X_test_csv), axis=1)
     THRESHOLD = 0.65
 
